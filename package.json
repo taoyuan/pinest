@@ -18,7 +18,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "npm run clean && echo Using TypeScript && tsc --version && tsc --pretty",
-    "test": "npm run build && mocha --require ts-node/register --recursive \"test/**/*.test.ts\""
+    "prepublish": "npm run build"
   },
   "pre-commit": [
     "build"
