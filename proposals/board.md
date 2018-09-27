@@ -1,4 +1,0 @@
-
-* maker
-* model
-* version
