@@ -1,12 +1,14 @@
 {
   "name": "pinest",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "pinest",
   "license": "MIT",
   "repository": "",
   "author": "",
   "keywords": [
-    ""
+    "firmata",
+    "johnny-five",
+    "arduino"
   ],
   "files": [
     "lib"
@@ -18,6 +20,9 @@
     "build": "npm run clean && echo Using TypeScript && tsc --version && tsc --pretty",
     "test": "npm run build && mocha --require ts-node/register --recursive \"test/**/*.test.ts\""
   },
+  "pre-commit": [
+    "build"
+  ],
   "dependencies": {
     "bluebird": "^3.5.2",
     "firmata": "^1.0.0",
@@ -30,6 +35,7 @@
     "@types/johnny-five": "0.0.37",
     "@types/node": "^10.11.0",
     "@types/serialport": "^6.0.4",
+    "pre-commit": "^1.2.2",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "typescript": "^3.0.3"
