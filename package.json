@@ -1,0 +1,40 @@
+{
+  "name": "pinest",
+  "version": "0.0.0",
+  "description": "pinest",
+  "license": "MIT",
+  "repository": "",
+  "author": "",
+  "keywords": [
+    ""
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "npm run clean && echo Using TypeScript && tsc --version && tsc --pretty",
+    "test": "npm run build && mocha --require ts-node/register --recursive \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "bluebird": "^3.5.2",
+    "firmata": "^1.0.0",
+    "johnny-five": "^1.0.0",
+    "serialport": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/bluebird-global": "^3.5.9",
+    "@types/firmata": "^0.19.0",
+    "@types/johnny-five": "0.0.37",
+    "@types/node": "^10.11.0",
+    "@types/serialport": "^6.0.4",
+    "rimraf": "^2.6.2",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
