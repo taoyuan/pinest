@@ -70,14 +70,30 @@ export class LedRGB extends five.Led.RGB {
     state.isRunning = true;
 
     // @ts-ignore
-    state.animation = state.animation || new Animation(this);
+    state.animation = state.animation || new five.Animation(this);
     state.animation.enqueue(options);
   }
 
   fadeloop(color: string, duration?: number) {
-    const fadeloop = (color, duration, direction = false) => {
-      this.fade(direction ? '000000' : color, duration, () => fadeloop(color, duration, !direction));
+    const fade = (color, duration, direction = false) => {
+      this.fade(direction ? '000000' : color, duration, () => fade(color, duration, !direction));
     };
-    fadeloop(color, duration);
+    fade(color, duration);
+  }
+
+  fadein(color: string, duration?: number) {
+    const fade = (color, duration) => {
+      this.color('000000');
+      this.fade(color, duration, () => fade(color, duration));
+    };
+    fade(color, duration);
+  }
+
+  fadeout(color: string, duration?: number) {
+    const fade = (color, duration) => {
+      this.color(color);
+      this.fade('000000', duration, () => fade(color, duration));
+    };
+    fade(color, duration);
   }
 }

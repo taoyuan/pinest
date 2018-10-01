@@ -33,12 +33,12 @@
     "@types/bluebird-global": "^3.5.9",
     "@types/firmata": "^0.19.0",
     "@types/johnny-five": "0.0.37",
-    "@types/node": "^10.11.0",
+    "@types/node": "^10.11.3",
     "@types/serialport": "^6.0.4",
     "pre-commit": "^1.2.2",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
-    "typescript": "^3.0.3"
+    "typescript": "^3.1.1"
   },
   "engines": {
     "node": ">=8.0.0"

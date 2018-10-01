@@ -1,11 +1,9 @@
 const {Nest} = require('..');
 
-const nest = new Nest({port: '/dev/cu.SLAB_USBtoUART'});
-
 (async () => {
-  await nest.ready;
+  const nest = await Nest.create({waitForReady: true});
   const ledrgb = nest.ledrgb();
-  ledrgb.fadeloop('ff00ff');
+  ledrgb.fadeout('0000ff');
 
   setTimeout(() => {
     ledrgb.stop();

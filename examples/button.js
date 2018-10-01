@@ -1,8 +1,7 @@
 const {Nest} = require('..');
 
-const nest = new Nest({port: '/dev/cu.SLAB_USBtoUART'});
-
 (async () => {
+  const nest = await Nest.create();
   await nest.ready;
   const button = nest.button();
   button.on('hold', () => console.log('hold'));
@@ -10,4 +9,6 @@ const nest = new Nest({port: '/dev/cu.SLAB_USBtoUART'});
   button.on('press', () => console.log('press'));
   button.on('up', () => console.log('up'));
   button.on('release', () => console.log('release'));
+
+  console.log('Waiting press button...');
 })();

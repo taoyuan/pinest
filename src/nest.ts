@@ -1,7 +1,7 @@
 import * as PromiseA from "bluebird";
-import {Board, BoardOption} from "johnny-five";
-import * as SerialPort from "serialport";
+import * as SP from "serialport";
 import * as Firmata from "firmata";
+import {Board, BoardOption} from "johnny-five";
 import * as Features from "./features";
 import {LedRGB} from "./devices/ledrgb";
 import {Button} from "./devices/button";
@@ -9,10 +9,24 @@ import {Button} from "./devices/button";
 export const FEATURE_REQUEST = 0x5B;
 export const FEATURE_RESPONSE = 0x5C;
 
+export interface NestOptions extends BoardOption {
+  waitForReady: boolean;
+}
+
 export interface Feature {
   node: string;
   role: string;
   device: any;
+}
+
+export interface PortDescriptor {
+  comName: string;
+  manufacturer: string;
+  serialNumber: string;
+  pnpId: string;
+  locationId: string;
+  vendorId: string;
+  productId: string;
 }
 
 export class Nest {
@@ -20,22 +34,16 @@ export class Nest {
   protected _board: Board;
   protected _features: Feature[];
 
-  constructor(opts?: BoardOption) {
-    opts = opts || {};
+  constructor(opts?: NestOptions) {
+    opts = normalize(opts);
 
-    let port = opts.port;
+    const portpath = opts.port.path;
+    delete opts.port.path;
+
+    const port = new SP(portpath, opts.port);
     delete opts.port;
-
-    if (typeof port === 'string') {
-      port = {path: port}
-    }
-
-    port = Object.assign({
-      baudRate: 57600,
-    }, port);
-
     Object.assign(opts, {
-      io: new Firmata(new SerialPort(port.path, port)),
+      io: new Firmata(port),
     });
 
     this._board = new Board(opts);
@@ -57,22 +65,52 @@ export class Nest {
     return this._board.io;
   }
 
-  feature(node: string, role?: string): Feature | undefined {
+  static async create(opts?: NestOptions): Promise<Nest> {
+    opts = normalize(opts);
+    if (!opts.port.path) {
+      const descriptors = await this.detect();
+      if (descriptors.length) {
+        opts.port.path = descriptors[0].comName;
+      }
+    }
+
+    const nest = new Nest(opts);
+    if (opts.waitForReady) {
+      return nest.ready;
+    }
+    return nest;
+  }
+
+  static async detect(): Promise<PortDescriptor[]> {
+    const ports: PortDescriptor[] = await SP.list();
+    if (!ports) {
+      return [];
+    }
+    return ports.filter(p => p.vendorId && p.productId)
+  }
+
+  _checkReady() {
     if (this._ready.isResolved) throw new Error('Not ready');
+  }
+
+  feature(node: string, role?: string): Feature | undefined {
+    this._checkReady();
     return this._features.find(feature => feature.node === node && (role ? feature.role === role : true));
   }
 
   device<T>(node: string, role?: string): T | undefined {
-    if (this._ready.isResolved) throw new Error('Not ready');
+    this._checkReady();
     const feature = this.feature(node, role);
     return feature && <T> feature.device;
   }
 
   ledrgb(role?: string): LedRGB | undefined {
+    this._checkReady();
     return this.device<LedRGB>('ledrgb', role);
   }
 
   button(role?: string): Button | undefined {
+    this._checkReady();
     return this.device<Button>('button', role);
   }
 
@@ -97,4 +135,18 @@ export class Nest {
     }
   }
 
+}
+
+function normalize(opts?: NestOptions): NestOptions {
+  opts = opts || <NestOptions>{};
+
+  if (typeof opts.port === 'string') {
+    opts.port = {path: opts.port}
+  }
+
+  opts.port = Object.assign({
+    baudRate: 57600,
+  }, opts.port);
+
+  return opts;
 }
