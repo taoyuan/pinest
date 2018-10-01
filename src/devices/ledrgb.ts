@@ -74,26 +74,32 @@ export class LedRGB extends five.Led.RGB {
     state.animation.enqueue(options);
   }
 
-  fadeloop(color: string, duration?: number) {
+  fadeloop(color: string, mode: 'in' | 'out' | 'toggle', duration?: number) {
     const fade = (color, duration, direction = false) => {
-      this.fade(direction ? '000000' : color, duration, () => fade(color, duration, !direction));
+      let toColor;
+      if (mode === 'in') {
+        this.color('000000');
+        toColor = color;
+      } else if (mode === 'out') {
+        this.color(color);
+        toColor = '000000';
+      } else if (mode === 'toggle') {
+        toColor = direction ? '000000' : color;
+      }
+      this.fade(toColor, duration, () => fade(color, duration, !direction));
     };
     fade(color, duration);
+  }
+
+  fadetoggle(color: string, duration?: number) {
+    this.fadeloop(color, 'toggle', duration);
   }
 
   fadein(color: string, duration?: number) {
-    const fade = (color, duration) => {
-      this.color('000000');
-      this.fade(color, duration, () => fade(color, duration));
-    };
-    fade(color, duration);
+    this.fadeloop(color, 'in', duration);
   }
 
   fadeout(color: string, duration?: number) {
-    const fade = (color, duration) => {
-      this.color(color);
-      this.fade('000000', duration, () => fade(color, duration));
-    };
-    fade(color, duration);
+    this.fadeloop(color, 'out', duration);
   }
 }
