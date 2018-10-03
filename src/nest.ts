@@ -32,9 +32,8 @@ export interface PortDescriptor {
 export class Nest {
 
   protected _board: Board;
-  protected _features: Feature[];
 
-  constructor(opts?: NestOptions) {
+  protected constructor(opts?: NestOptions) {
     opts = normalize(opts);
 
     const portpath = opts.port.path;
@@ -53,6 +52,12 @@ export class Nest {
         resolve(this);
       });
     });
+  }
+
+  protected _features: Feature[];
+
+  get features() {
+    return this._features;
   }
 
   protected _ready: Promise<Nest>;
