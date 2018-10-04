@@ -76,7 +76,13 @@ export class Nest {
       const descriptors = await this.detect();
       if (descriptors.length) {
         opts.port.path = descriptors[0].comName;
+      } else {
+        console.warn('No serial port detected for pinest');
       }
+    }
+
+    if (!opts.port.path) {
+      throw new Error('`port` (serial port path) is required');
     }
 
     const nest = new Nest(opts);
