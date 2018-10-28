@@ -5,6 +5,7 @@ import {Board, BoardOption} from "johnny-five";
 import * as Features from "./features";
 import {LedRGB} from "./devices/ledrgb";
 import {Button} from "./devices/button";
+import {throws} from "assert";
 
 export const FEATURE_REQUEST = 0x5B;
 export const FEATURE_RESPONSE = 0x5C;
@@ -77,12 +78,8 @@ export class Nest {
       if (descriptors.length) {
         opts.port.path = descriptors[0].comName;
       } else {
-        console.warn('No serial port detected for pinest');
+        throw new Error('No serial port detected for pinest');
       }
-    }
-
-    if (!opts.port.path) {
-      throw new Error('`port` (serial port path) is required');
     }
 
     const nest = new Nest(opts);
