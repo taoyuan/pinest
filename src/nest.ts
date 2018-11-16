@@ -2,10 +2,10 @@ import * as PromiseA from "bluebird";
 import * as SP from "serialport";
 import * as Firmata from "firmata";
 import {Board, BoardOption} from "johnny-five";
-import * as Features from "./features";
+import {devices} from "./devices";
 import {LedRGB} from "./devices/ledrgb";
 import {Button} from "./devices/button";
-import {throws} from "assert";
+import {Feature} from "./features";
 
 export const FEATURE_REQUEST = 0x5B;
 export const FEATURE_RESPONSE = 0x5C;
@@ -14,20 +14,14 @@ export interface NestOptions extends BoardOption {
   waitForReady: boolean;
 }
 
-export interface Feature {
-  node: string;
-  role: string;
-  device: any;
-}
-
 export interface PortDescriptor {
   comName: string;
-  manufacturer: string;
-  serialNumber: string;
-  pnpId: string;
-  locationId: string;
-  vendorId: string;
-  productId: string;
+  manufacturer?: string;
+  serialNumber?: string;
+  pnpId?: string;
+  locationId?: string;
+  productId?: string;
+  vendorId?: string;
 }
 
 export class Nest {
@@ -131,11 +125,11 @@ export class Nest {
 
       const items = JSON.parse(Buffer.from(data).toString());
       if (Array.isArray(items)) {
-        this._features = items.filter(item => Boolean(Features[item.node])).map(item => ({
-          node: item.node,
-          role: item.role,
-          device: Features[item.node](item)
-        }));
+        this._features = items.filter(item => Boolean(devices[item.node])).map(item => new Feature(
+          item.node,
+          item.role,
+          devices[item.node](item)
+        ));
       }
 
     } finally {

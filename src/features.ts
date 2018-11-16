@@ -1,31 +1,28 @@
-import {LedRGB} from "./devices/ledrgb";
-import {Button} from "./devices/button";
+import {fetchExposes} from "./exposes";
 
-export interface FeatureOptions {
-  node: string;
-  role: string;
+export interface Action {
+  (...args): any;
 }
 
-export interface RGBFeatureOptions extends FeatureOptions{
-  pins: number[];
-  invert?: boolean;
+export interface Actions {
+  [name: string]: Action
 }
 
-export interface ButtonOptions extends FeatureOptions {
-  pin: number;
-  invert?: boolean;
-}
+export class Feature {
+  readonly node: string;
+  readonly role: string;
+  readonly device: any;
 
-export function ledrgb(opts: RGBFeatureOptions): LedRGB {
-  return new LedRGB({
-    pins: opts.pins,
-    isAnode: opts.invert || false,
-  });
-}
+  constructor(node, role, device) {
+    this.node = node;
+    this.role = role;
+    this.device = device;
+  }
 
-export function button(opts: ButtonOptions): Button {
-  return new Button({
-    pin: opts.pin,
-    invert: opts.invert,
-  })
+  actions(): Actions {
+    return fetchExposes(this.device).filter(n => this.device[n]).reduce((actions, name) => {
+      actions[name] = (...args) => this.device[name](...args);
+      return actions;
+    }, {});
+  }
 }
