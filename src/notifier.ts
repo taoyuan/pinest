@@ -1,13 +1,24 @@
+import EventEmitter = NodeJS.EventEmitter;
+
 export interface Listener {
   (event: string, data?: any): Promise<void> | undefined;
 }
 
-export class Notifier {
+export interface Notifier {
+  listen(listener: Listener);
+  unlisten(listener: Listener);
+}
+
+export class EventNotifier implements Notifier {
 
   protected _listeners: Listener[] = [];
 
+  protected hasListener(listener: Listener): boolean {
+    return this._listeners.indexOf(listener) >= 0;
+  }
+
   listen(listener: Listener) {
-    if (!this._listeners.indexOf(listener)) {
+    if (!this.hasListener(listener)) {
       this._listeners.push(listener);
     }
   }
@@ -19,20 +30,22 @@ export class Notifier {
     }
   }
 
+  forward(source: any, events: string | string[]) {
+    if (typeof source.on !== 'function') {
+      throw new Error('source should be EventEmitter');
+    }
+
+    events = Array.isArray(events) ? events : [events];
+    for (const event of events) {
+      // @ts-ignore
+      source.on(event, data => this.notify(event, data));
+    }
+  }
+
   async notify(event: string, data?: any) {
     for (const l of this._listeners) {
       await l(event, data);
     }
   }
 
-  protected forward(events: string | string[]) {
-    events = Array.isArray(events) ? events : [events];
-    for (const event of events) {
-      // @ts-ignore
-      if (typeof this.on === 'function') {
-        // @ts-ignore
-        this.on(event, data => this.notify(event, data));
-      }
-    }
-  }
 }

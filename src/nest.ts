@@ -77,7 +77,7 @@ export class Nest {
     }
 
     const nest = new Nest(opts);
-    if (opts.waitForReady) {
+    if (opts.waitForReady || opts.waitForReady == null) {
       return nest.ready;
     }
     return nest;

@@ -2,7 +2,6 @@ const {Nest} = require('..');
 
 (async () => {
   const nest = await Nest.create();
-  await nest.ready;
   const button = nest.button();
   button.on('hold', () => console.log('hold'));
   button.on('down', () => console.log('down'));
