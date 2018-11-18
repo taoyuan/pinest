@@ -1,7 +1,5 @@
-import EventEmitter = NodeJS.EventEmitter;
-
 export interface Listener {
-  (event: string, data?: any): Promise<void> | undefined;
+  (event: string, data?: any): Promise<void> | void;
 }
 
 export interface Notifier {
